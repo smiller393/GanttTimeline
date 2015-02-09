@@ -35,38 +35,47 @@ html,body,#wrapper {
 	fill: #ffbb33;
 }
 
-#forkme_banner {
-	display: block;
-	position: absolute;
-	top: 0;
-	right: 10px;
-	z-index: 10;
-	padding: 10px 50px 10px 10px;
-	color: #fff;
-	background:
-		url('http://dk8996.github.io/Gantt-Chart/images/blacktocat.png')
-		#0090ff no-repeat 95% 50%;
-	font-weight: 700;
-	box-shadow: 0 0 10px rgba(0, 0, 0, .5);
-	border-bottom-left-radius: 2px;
-	border-bottom-right-radius: 2px;
-	text-decoration: none;
+
+
+.green-bar {
+	fill: #669900;
+}
+.green-bar:hover {
+	fill: #BDDB7F;
 }
 
-#twittme_banner {
-	display: block;
-	position: absolute;
-	top: 0;
-	right: 180px;
-	z-index: 10;
-	padding: 10px 50px 10px 10px;
-	color: #fff;
-	background:
-		url('http://dk8996.github.io/Gantt-Chart/images/twitter.png')
-		#0090ff no-repeat 95% 50%;
-	font-weight: 700;
-	box-shadow: 0 0 10px rgba(0, 0, 0, .5);
-	border-bottom-left-radius: 2px;
-	border-bottom-right-radius: 2px;
-	text-decoration: none;
+.purple-bar {
+	fill: #5540bc;
 }
+.purple-bar:hover {
+	fill: #8a7eca;
+}
+
+.blue-bar {
+	fill: #33b5e5;
+}
+.blue-bar:hover {
+	fill: #9ED2E6;
+}
+
+.yellow-bar {
+	fill: #ffbb33;
+}
+.yellow-bar:hover {
+	fill: #FFDF9E;
+}
+
+.red-bar {
+	fill: #CC0000;
+}
+.red-bar:hover {
+	fill: #D99191;
+}
+
+.orange-bar {
+	fill: #FA6400;
+}
+.orange-bar:hover {
+	fill: #FFA970;
+}
+
