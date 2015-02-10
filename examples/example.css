@@ -59,10 +59,10 @@ html,body,#wrapper {
 }
 
 .yellow-bar {
-	fill: #ffbb33;
+	fill: #fffe35;
 }
 .yellow-bar:hover {
-	fill: #FFDF9E;
+	fill: #fffeb3;
 }
 
 .red-bar {

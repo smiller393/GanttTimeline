@@ -101,7 +101,7 @@ d3.gantt = function() {
 				 var styleId = d.status%theEventCount;
 				 if(eventStyles[styleId] == null){ return "bar";}
 				 return eventStyles[styleId];
-				 })
+             })
 			 .attr("y", 0)
 			 .attr("transform", rectTransform)
 			 .attr("height", function(d) { return y.rangeBand(); })
