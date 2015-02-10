@@ -13,13 +13,13 @@
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
 
-    <title>Gantttimeline by smiller393</title>
+    <title>Gantt timeline by smiller393</title>
   </head>
 
   <body>
     <header>
       <div class="inner">
-        <h1>Gantttimeline</h1>
+        <h1>Gantt timeline</h1>
         <h2></h2>
         <a href="https://github.com/smiller393/GanttTimeline" class="button"><small>View project on</small> GitHub</a>
       </div>
@@ -34,6 +34,30 @@
 <p>A basic implementation of a Gantt Chart using D3.js.</p>
 
 <p>Adapted from <a href="https://github.com/dk8996/Gantt-Chart">https://github.com/dk8996/Gantt-Chart</a></p>
+
+<div id="gantt">
+    <button type="button" onclick="addTask()">Add Task</button>
+    <button type="button" onclick="removeTask()">Remove Task</button>
+    <br/>
+    <button type="button" onclick="gantt.changeTimeDomain('5sec')">5 Sec</button>
+    <button type="button" onclick="gantt.changeTimeDomain('15sec')">15 Sec</button>
+    <button type="button" onclick="gantt.changeTimeDomain('1min')">1 Min</button>
+    <button type="button" onclick="gantt.changeTimeDomain('5min')">5 Mins</button>
+    <button type="button" onclick="gantt.changeTimeDomain('15min')">15 Mins</button>
+    <button type="button" onclick="gantt.changeTimeDomain('1hr')">1 HR</button>
+    <button type="button" onclick="gantt.changeTimeDomain('3hr')">3 HR</button>
+    <button type="button" onclick="gantt.changeTimeDomain('6hr')">6 HR</button>
+    <button type="button" onclick="gantt.changeTimeDomain('1day')">1 DAY</button>
+    <br/>
+    <button type="button" onclick="gantt.panView('left')">Left</button>
+    <button type="button" onclick="gantt.panView('right')">Right</button>
+    <script type="text/javascript" src="javascripts/d3.v3.min.js"></script>
+    <script type="text/javascript" src="javascripts/gantt-chart-d3.js"></script>
+    <script type="text/javascript" src="javascripts/example.js"></script>
+    <link type="text/css" href="stylesheets/example.css" rel="stylesheet" />
+</div>
+
+
 
 <h2>
 <a id="getting-started" class="anchor" href="#getting-started" aria-hidden="true"><span class="octicon octicon-link"></span></a>Getting Started</h2>

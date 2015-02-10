@@ -1,0 +1,81 @@
+html,body,#wrapper {
+	width: 100%;
+	height: 100%;
+	margin: 0px;
+}
+
+.chart {
+	font-family: Arial, sans-serif;
+	font-size: 12px;
+}
+
+.axis path,.axis line {
+	fill: none;
+	stroke: #000;
+	shape-rendering: crispEdges;
+}
+
+.bar {
+	fill: #33b5e5;
+}
+
+.bar-failed {
+	fill: #CC0000;
+}
+
+.bar-running {
+	fill: #669900;
+}
+
+.bar-succeeded {
+	fill: #33b5e5;
+}
+
+.bar-killed {
+	fill: #ffbb33;
+}
+
+
+
+.green-bar {
+	fill: #669900;
+}
+.green-bar:hover {
+	fill: #BDDB7F;
+}
+
+.purple-bar {
+	fill: #5540bc;
+}
+.purple-bar:hover {
+	fill: #8a7eca;
+}
+
+.blue-bar {
+	fill: #33b5e5;
+}
+.blue-bar:hover {
+	fill: #9ED2E6;
+}
+
+.yellow-bar {
+	fill: #ffbb33;
+}
+.yellow-bar:hover {
+	fill: #FFDF9E;
+}
+
+.red-bar {
+	fill: #CC0000;
+}
+.red-bar:hover {
+	fill: #D99191;
+}
+
+.orange-bar {
+	fill: #FA6400;
+}
+.orange-bar:hover {
+	fill: #FFA970;
+}
+
