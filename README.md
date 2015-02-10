@@ -1,6 +1,9 @@
 ## Introduction
 A basic implementation of a Gantt Chart using D3.js.
 
+Example at http://smiller393.github.io/GanttTimeline/
+
+
 Adapted from https://github.com/dk8996/Gantt-Chart
 
 
