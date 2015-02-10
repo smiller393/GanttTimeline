@@ -1,7 +1,3 @@
-/**
- * @author Dimitry Kudrayvtsev
- * @version 2.1
- */
 
 d3.gantt = function() {
     var FIT_TIME_DOMAIN_MODE = "fit";
@@ -11,7 +7,7 @@ d3.gantt = function() {
 		top : 20,
 		right : 40,
 		bottom : 20,
-		left : 150
+		left : 40
     };
     var timeDomainStart = d3.time.day.offset(new Date(),-3);
     var timeDomainEnd = d3.time.hour.offset(new Date(),+3);
