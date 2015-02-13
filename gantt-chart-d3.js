@@ -3,104 +3,211 @@
  * @version 2.1
  */
 
-d3.gantt = function() {
-    var FIT_TIME_DOMAIN_MODE = "fit";
-    var FIXED_TIME_DOMAIN_MODE = "fixed";
-    
-    var margin = {
-		top : 20,
-		right : 40,
-		bottom : 20,
-		left : 150
-    };
-    var timeDomainStart = d3.time.day.offset(new Date(),-3);
-    var timeDomainEnd = d3.time.hour.offset(new Date(),+3);
-    var timeDomainMode = FIT_TIME_DOMAIN_MODE;// fixed or fit
-    var taskTypes = [];
-    var eventStyles = [];
-	var eventStyleCount = function(){
-		return eventStyles.length;
-	}
-    var height = 800 - margin.top - margin.bottom-5;
-    var width = 1800 - margin.right - margin.left-5;
+d3.gantt = function(inputConfig) {
 
-	var currentViewBeginTime;
-	var currentViewEndTime;
-	currentViewBeginTime = d3.time.day.offset(getEndDate(), -1);
-	currentViewEndTime = getEndDate();
+	//var inputConfig = config;
 
-    var tickFormat = "%H:%M";
+	var eventList = [];
 
-    var keyFunction = function(d) {
-		return d.startDate + d.taskName + d.endDate;
-    };
+    var timeDomainStart;
+    var timeDomainEnd;
+    var timeDomainMode;
+	var timeDomainString;
 
-    var rectTransform = function(d) {
-		return "translate(" + x(d.startDate) + "," + y(d.taskName) + ")";
-    };
+	var FIT_TIME_DOMAIN_MODE = "fit";
+	var FIXED_TIME_DOMAIN_MODE = "fixed";
 
-    var x = d3.time.scale().domain([ timeDomainStart, timeDomainEnd ]).range([ 0, width ]).clamp(true);
+    var eventTypes;
+    var eventStyleClasses = ["event"];
+	var eventStyleCount;
 
-    var y = d3.scale.ordinal().domain(taskTypes).rangeRoundBands([ 0, height - margin.top - margin.bottom ], .1);
-    
-    var xAxis = d3.svg.axis().scale(x).orient("bottom").tickFormat(d3.time.format(tickFormat)).tickSubdivide(true)
-	    .tickSize(8).tickPadding(8);
+    var height;
+    var width;
+	var margin;
 
-    var yAxis = d3.svg.axis().scale(y).orient("left").tickSize(0);
+	var minDate;
+	var maxDate;
 
-    var initTimeDomain = function(tasks) {
-		if (timeDomainMode === FIT_TIME_DOMAIN_MODE) {
-			if (tasks === undefined || tasks.length < 1) {
-			timeDomainStart = d3.time.day.offset(new Date(), -3);
-			timeDomainEnd = d3.time.hour.offset(new Date(), +3);
-			return;
-			}
-			tasks.sort(function(a, b) {
-			return a.endDate - b.endDate;
-			});
-			timeDomainEnd = tasks[tasks.length - 1].endDate;
-			tasks.sort(function(a, b) {
-			return a.startDate - b.startDate;
-			});
-			timeDomainStart = tasks[0].startDate;
+	var currentViewBeginTime = d3.time.day.offset(getEndDate(), -1);
+	var currentViewEndTime = getEndDate();
+
+    var tickFormat;
+
+	//function initGantt(inputConfig){
+
+		//var initGantt = function(config){
+		if(inputConfig !== "null" && inputConfig !== "undefined") {
+			eventList = inputConfig.eventSettings.eventList;
+			eventTypes = inputConfig.eventSettings.eventTypes;
+			eventStyleClasses = inputConfig.eventSettings.eventStyleClassList;
+			eventStyleCount = eventStyleClasses.length;
+
+			setMinMaxDate(eventList);
+
+			margin = inputConfig.sizing.margin;
+			height = inputConfig.sizing.height - margin.top - margin.bottom - 5;
+			width = inputConfig.sizing.width - margin.right - margin.left - 5;
+
+			timeDomainStart = d3.time.hour.offset(minDate, -1);
+			timeDomainEnd =  d3.time.hour.offset(maxDate, +1);
+
+			tickFormat = inputConfig.timeDomainSettings.startingTimeFormat;
+			timeDomainString = inputConfig.startingTimeDomainString;
+			timeDomainMode = inputConfig.timeDomainMode;
+
+			var x = d3.time.scale().domain([ timeDomainStart, timeDomainEnd ]).range([ 0, width ]).clamp(true);
+
+			var y = d3.scale.ordinal().domain(eventTypes).rangeRoundBands([ 0, height - margin.top - margin.bottom ], .1);
+
+			var xAxis = d3.svg.axis().scale(x).orient("bottom").tickFormat(d3.time.format(tickFormat)).tickSubdivide(true)
+				.tickSize(8).tickPadding(8);
+
+			var yAxis = d3.svg.axis().scale(y).orient("left").tickSize(0);
+
+
 		}
-    };
+	//};
 
-    var initAxis = function() {
+
+	//}
+
+//==========================================================================================================================
+// Other
+//--------------------------------------------------------------------------------------------------------------------------
+	var keyFunction = function(d) {
+		return d.startDate + d.taskName + d.endDate;
+	};
+
+	var rectTransform = function(d) {
+		return "translate(" + x(d.startDate) + "," + y(d.taskName) + ")";
+	};
+
+	function setMinMaxDate(eventList){
+		eventList.sort(function(a, b) { return a.endDate - b.endDate; });
+		maxDate = eventList[eventList.length - 1].endDate;       // TODO remove this area and replace with functions??????
+		eventList.sort(function(a, b) { return a.startDate - b.startDate; });
+		minDate = eventList[0].startDate;
+	}
+
+
+//==========================================================================================================================
+// Define sizing and axis
+//--------------------------------------------------------------------------------------------------------------------------
+
+
+
+	var initAxis = function() {
 		x = d3.time.scale().domain([ timeDomainStart, timeDomainEnd ]).range([ 0, width ]).clamp(true);
-		y = d3.scale.ordinal().domain(taskTypes).rangeRoundBands([ 0, (height) - margin.top - margin.bottom ],.2);
+		y = d3.scale.ordinal().domain(eventTypes).rangeRoundBands([ 0, (height) - margin.top - margin.bottom ],.2);
 		xAxis = d3.svg.axis().scale(x).orient("bottom").tickFormat(d3.time.format(tickFormat)).tickSubdivide(true)
 			.tickSize(8).tickPadding(8);
 
 		yAxis = d3.svg.axis().scale(y).orient("left").tickSize(0);
-    };
-    
-    function gantt(tasks) {
+	};
+
+
+//==========================================================================================================================
+// Sizing
+//--------------------------------------------------------------------------------------------------------------------------
+
+
+
+	gantt.width = function(value) {
+		if (!arguments.length)
+			return width;
+		width = +value;
+		return gantt;
+	};
+
+	gantt.height = function(value) {
+		if (!arguments.length)
+			return height;
+		height = +value;
+		return gantt;
+	};
+
+
+	gantt.margin = function(value) {
+		if (!arguments.length)
+			return margin;
+		margin = value;
+		return gantt;
+	};
+
+
+//--------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+	/**
+	 * @param {string}
+	 *                vale The value can be "fit" - the domain fits the data or
+	 *                "fixed" - fixed domain.
+	 */
+
+	gantt.taskTypes = function(value) {
+		if (!arguments.length)
+			return eventTypes;
+		eventTypes = value;
+		return gantt;
+	};
+
+	gantt.eventStyles = function(value) {
+		if (!arguments.length)
+			return eventStyleClasses;
+		eventStyleClasses = value;
+		return gantt;
+	};
+
+
+	gantt.tickFormat = function(value) {
+		if (!arguments.length)
+			return tickFormat;
+		tickFormat = value;
+		return gantt;
+	};
+
+
+	function getEndDate() {
+		var lastEndDate = Date.now();
+		if (eventList.length > 0) {
+			lastEndDate = eventList[eventList.length - 1].endDate;
+		}
+		return lastEndDate;
+	}
+//==========================================================================================================================
+// Draw / ReDraw Code
+//--------------------------------------------------------------------------------------------------------------------------
+
+    function gantt(eventList) {
 	
-		initTimeDomain(tasks);
+		initTimeDomain(eventList);
 		initAxis();
 
 		var svg = d3.select("body")
 			.append("svg")
-			.attr("class", "chart")
-			.attr("width", width + margin.left + margin.right)
-			.attr("height", height + margin.top + margin.bottom)
-			.append("g")
-				.attr("class", "gantt-chart")
-			.attr("width", width + margin.left + margin.right)
-			.attr("height", height + margin.top + margin.bottom)
-			.attr("transform", "translate(" + margin.left + ", " + margin.top + ")");
+				.attr("class", "chart")
+				.attr("width", width + margin.left + margin.right)
+				.attr("height", height + margin.top + margin.bottom)
+				.append("g")
+					.attr("class", "gantt-chart")
+				.attr("width", width + margin.left + margin.right)
+				.attr("height", height + margin.top + margin.bottom)
+				.attr("transform", "translate(" + margin.left + ", " + margin.top + ")");
 
 		svg.selectAll(".chart")
-			 .data(tasks, keyFunction).enter()
+			 .data(eventList, keyFunction).enter()
 			 .append("rect")
 			 .attr("rx", 5)
-				 .attr("ry", 5)
+			 .attr("ry", 5)
 			 .attr("class", function(d){
-				 var theEventCount = eventStyleCount();
-				 var styleId = d.status%theEventCount;
-				 if(eventStyles[styleId] == null){ return "bar";}
-				 return eventStyles[styleId];
+				 var styleId = d.status%eventStyleCount;
+				 if(eventStyleClasses[styleId] == null){ return "bar";}
+				 return eventStyleClasses[styleId];
              })
 			 .attr("y", 0)
 			 .attr("transform", rectTransform)
@@ -121,23 +228,23 @@ d3.gantt = function() {
     };
 
     
-    gantt.redraw = function(tasks) {
+    gantt.redraw = function(eventList) {
 
-		initTimeDomain(tasks);
+		initTimeDomain(eventList);
 		initAxis();
 	
         var svg = d3.select("svg");
 
         var ganttChartGroup = svg.select(".gantt-chart");
-        var rect = ganttChartGroup.selectAll("rect").data(tasks, keyFunction);
+        var rect = ganttChartGroup.selectAll("rect").data(eventList, keyFunction);
         
         rect.enter()
          .insert("rect",":first-child")
          .attr("rx", 5)
          .attr("ry", 5)
 		 .attr("class", function(d){
-			 if(eventStyles[d.status%eventStyleCount] == null){ return "bar";}
-			 return eventStyles[d.status%eventStyleCount];
+			 if(eventStyleClasses[d.status%eventStyleCount] == null){ return "bar";}
+			 return eventStyleClasses[d.status%eventStyleCount];
 			 })
 		 .transition()
 		 .attr("y", 0)
@@ -162,68 +269,44 @@ d3.gantt = function() {
 		return gantt;
     };
 
-    gantt.margin = function(value) {
+//=================================================================================================================
+// Time Domain Code
+//------------------------------------------------------------------------------------------------------------------
+	gantt.timeDomainMode = function(value) {
 		if (!arguments.length)
-			return margin;
-		margin = value;
+			return timeDomainMode;
+		timeDomainMode = value;
 		return gantt;
-    };
+	};
 
-    gantt.timeDomain = function(value) {
+	gantt.timeDomain = function(value) {
 		if (!arguments.length)
 			return [ timeDomainStart, timeDomainEnd ];
 		timeDomainStart = +value[0], timeDomainEnd = +value[1];
 		return gantt;
-    };
+	};
 
-    /**
-     * @param {string}
-     *                vale The value can be "fit" - the domain fits the data or
-     *                "fixed" - fixed domain.
-     */
-    gantt.timeDomainMode = function(value) {
-		if (!arguments.length)
-			return timeDomainMode;
-			timeDomainMode = value;
-			return gantt;
-    };
+	var initTimeDomain = function(eventList) {
+		if (timeDomainMode === FIT_TIME_DOMAIN_MODE) {
+			if (eventList === undefined || eventList.length < 1) {
+				timeDomainStart = d3.time.day.offset(new Date(), -3);
+				timeDomainEnd = d3.time.hour.offset(new Date(), +3);
+				return;
+			}
+			eventList.sort(function(a, b) {
+				return a.endDate - b.endDate;
+			});
+			timeDomainEnd = eventList[eventList.length - 1].endDate;
 
-    gantt.taskTypes = function(value) {
-		if (!arguments.length)
-			return taskTypes;
-		taskTypes = value;
-		return gantt;
-    };
-    
-    gantt.eventStyles = function(value) {
-		if (!arguments.length)
-			return eventStyles;
-		eventStyles = value;
-		return gantt;
-    };
+			eventList.sort(function(a, b) {
+				return a.startDate - b.startDate;
+			});
+			timeDomainStart = eventList[0].startDate;
+		}
+	};
 
-    gantt.width = function(value) {
-		if (!arguments.length)
-			return width;
-		width = +value;
-		return gantt;
-    };
 
-    gantt.height = function(value) {
-		if (!arguments.length)
-			return height;
-		height = +value;
-		return gantt;
-    };
-
-    gantt.tickFormat = function(value) {
-		if (!arguments.length)
-			return tickFormat;
-		tickFormat = value;
-		return gantt;
-    };
-
-	 gantt.changeTimeDomain = function(timeDomainString) {
+	gantt.changeTimeDomain = function(timeDomainString) {
 		this.timeDomainString = timeDomainString;
 		switch (timeDomainString) {
 
@@ -286,8 +369,10 @@ d3.gantt = function() {
 
 		}
 		this.tickFormat(format);
-		this.redraw(tasks);
+		this.redraw(eventList);
 	}
+
+//------------------------------------------------------------------------------------------------------------------
 
 	gantt.panView = function(direction){
 		// gets the length in MS of 50% of the current view. This will be used to determine how far to pan in a single click
@@ -301,25 +386,9 @@ d3.gantt = function() {
 		this.timeDomain([ newStartTime , newEndTime ]);
 		this.currentViewBeginTime = newStartTime;
 		this.currentViewEndTime = newEndTime;
-		this.redraw(tasks);
+		this.redraw(eventList);
 
 	}
 
-	//function panView(){
-	//	return 0;
-	//}
-
-	function getStartDate() {
-		return this.minDate;
-	}
-
-	function getEndDate() {
-		var lastEndDate = Date.now();
-		if (tasks.length > 0) {
-			lastEndDate = tasks[tasks.length - 1].endDate;
-		}
-		return lastEndDate;
-	}
-    
-    return gantt;
+    return gantt(eventList);
 };
