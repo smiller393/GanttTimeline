@@ -89,6 +89,10 @@ d3.gantt = function(inputConfig) {
 		minDate = eventList[0].startDate;
 	}
 
+	var tooltipdiv = d3.select("body").append("div")
+		.attr("class", "tooltip")
+		.style("opacity", 0);
+
 
 //==========================================================================================================================
 // Define sizing and axis
@@ -199,22 +203,36 @@ d3.gantt = function(inputConfig) {
 				.attr("height", height + margin.top + margin.bottom)
 				.attr("transform", "translate(" + margin.left + ", " + margin.top + ")");
 
-		svg.selectAll(".chart")
-			 .data(eventList, keyFunction).enter()
-			 .append("rect")
-			 .attr("rx", 5)
-			 .attr("ry", 5)
-			 .attr("class", function(d){
-				 var styleId = d.status%eventStyleCount;
-				 if(eventStyleClasses[styleId] == null){ return "bar";}
-				 return eventStyleClasses[styleId];
-             })
-			 .attr("y", 0)
-			 .attr("transform", rectTransform)
-			 .attr("height", function(d) { return y.rangeBand(); })
-			 .attr("width", function(d) {
-				 return (x(d.endDate) - x(d.startDate));
-			  });
+			svg.selectAll(".chart")
+				.data(eventList, keyFunction).enter()
+				.append("rect")
+				.attr("rx", 5)
+				.attr("ry", 5)
+				.attr("class", function(d){
+					var styleId = d.status%eventStyleCount;
+					if(eventStyleClasses[styleId] == null){ return "bar";}
+					return eventStyleClasses[styleId];
+				})
+				.attr("y", 0)
+				.attr("transform", rectTransform)
+				.attr("height", function(d) { return y.rangeBand(); })
+				.attr("width", function(d) {
+					return (x(d.endDate) - x(d.startDate)); })
+				.on("mouseover", function(d) {
+					if(ganttConfig.eventSettings.enableToolTips && d.toolTipHTML != "") {
+						tooltipdiv.transition()
+							.duration(200)
+							.style("opacity", .9)
+						tooltipdiv.html(d.toolTipHTML)
+							.style("left", (d3.event.pageX) + "px")
+							.style("top", (d3.event.pageY - 28) + "px");
+					}
+				})
+				.on("mouseout", function(d) {
+					tooltipdiv.transition()
+					.duration(500)
+					.style("opacity", 0);
+				});
 
 		 svg.append("g")
 			 .attr("class", "x axis")
