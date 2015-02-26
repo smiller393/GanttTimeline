@@ -28,6 +28,7 @@ var ganttConfig = {
         enableToolTips: true
     },
     sizing: {
+        location:'GanttChart',
         margin:{
             top : 20,
             right : 40,

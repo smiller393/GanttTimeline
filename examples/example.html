@@ -6,21 +6,23 @@
 <link type="text/css" href="example.css" rel="stylesheet" />
 </head>
 <body>
-	<!--<button type="button" onclick="addTask()">Add Task</button>-->
-	<!--<button type="button" onclick="removeTask()">Remove Task</button>-->
-	<button type="button" onclick="myGantt.changeTimeDomain('5sec')">5 Sec</button>
-	<button type="button" onclick="myGantt.changeTimeDomain('15sec')">15 Sec</button>
-	<button type="button" onclick="myGantt.changeTimeDomain('1min')">1 Min</button>
-	<button type="button" onclick="myGantt.changeTimeDomain('5min')">5 Mins</button>
-	<button type="button" onclick="myGantt.changeTimeDomain('15min')">15 Mins</button>
-	<button type="button" onclick="myGantt.changeTimeDomain('1hr')">1 HR</button>
-	<button type="button" onclick="myGantt.changeTimeDomain('3hr')">3 HR</button>
-	<button type="button" onclick="myGantt.changeTimeDomain('6hr')">6 HR</button>
-	<button type="button" onclick="myGantt.changeTimeDomain('1day')">1 DAY</button>
-	<button type="button" onclick="myGantt.panView('left')">Left</button>
-	<button type="button" onclick="myGantt.panView('right')">Right</button>
-	<script type="text/javascript" src="../lib/d3/d3.v3.min.js"></script>
-	<script type="text/javascript" src="../gantt-chart-d3.js"></script>
-	<script type="text/javascript" src="example.js"></script>
+	<div id="GanttChart">
+		<!--<button type="button" onclick="addTask()">Add Task</button>-->
+		<!--<button type="button" onclick="removeTask()">Remove Task</button>-->
+		<button type="button" onclick="myGantt.changeTimeDomain('5sec')">5 Sec</button>
+		<button type="button" onclick="myGantt.changeTimeDomain('15sec')">15 Sec</button>
+		<button type="button" onclick="myGantt.changeTimeDomain('1min')">1 Min</button>
+		<button type="button" onclick="myGantt.changeTimeDomain('5min')">5 Mins</button>
+		<button type="button" onclick="myGantt.changeTimeDomain('15min')">15 Mins</button>
+		<button type="button" onclick="myGantt.changeTimeDomain('1hr')">1 HR</button>
+		<button type="button" onclick="myGantt.changeTimeDomain('3hr')">3 HR</button>
+		<button type="button" onclick="myGantt.changeTimeDomain('6hr')">6 HR</button>
+		<button type="button" onclick="myGantt.changeTimeDomain('1day')">1 DAY</button>
+		<button type="button" onclick="myGantt.panView('left')">Left</button>
+		<button type="button" onclick="myGantt.panView('right')">Right</button>
+		<script type="text/javascript" src="../lib/d3/d3.v3.min.js"></script>
+		<script type="text/javascript" src="../gantt-chart-d3.js"></script>
+		<script type="text/javascript" src="example.js"></script>
+	</div>
 </body>
 </html>

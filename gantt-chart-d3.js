@@ -192,7 +192,7 @@ d3.gantt = function(inputConfig) {
 		initTimeDomain(eventList);
 		initAxis();
 
-		var svg = d3.select("body")
+		var svg = d3.select("#" + inputConfig.sizing.location)
 			.append("svg")
 				.attr("class", "chart")
 				.attr("width", width + margin.left + margin.right)
