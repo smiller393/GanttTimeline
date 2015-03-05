@@ -39,6 +39,7 @@ var ganttConfig = {
         width:"1000"
     },
     timeDomainSettings: {
+        zoomLevels:["5:sec","15:sec","1:min","5:min","15:min","1:hr","3:hr","6:hr","1:day"],
         timeDomainStart:d3.time.day.offset(new Date(),-3),
         timeDomainEnd: d3.time.hour.offset(new Date(),+3),
         startingTimeFormat:"%H:%M",
