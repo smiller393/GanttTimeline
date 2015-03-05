@@ -1,6 +1,5 @@
 /**
- * @author Dimitry Kudrayvtsev
- * @version 2.1
+ * @author Shane Miller
  */
 
 d3.gantt = function(inputConfig) {
@@ -12,8 +11,8 @@ d3.gantt = function(inputConfig) {
 	var timeDomainMode;
 	var timeDomainString;
 
-	var FIT_TIME_DOMAIN_MODE = "fit";
-	var FIXED_TIME_DOMAIN_MODE = "fixed";
+//	var FIT_TIME_DOMAIN_MODE = "fit";
+//	var FIXED_TIME_DOMAIN_MODE = "fixed";
 
 	var eventTypes;
 	var eventStyleClasses = ["event"];
@@ -28,20 +27,16 @@ d3.gantt = function(inputConfig) {
 
 	var currentViewBeginTime;// = d3.time.day.offset(getEndDate(), -1);
 	var currentViewEndTime;//= getEndDate();
-	this.getCurrentViewCenterTime = function() {
-		return (d3.time.second.offset(
-			this.currentViewBeginTime,
-			(((this.currentViewEndTime - this.currentViewBeginTime) / 2) / 1000)));
+	gantt.getCurrentViewCenterTime = function() {
+        var centerTime = d3.time.second.offset(currentViewBeginTime,(((currentViewEndTime - currentViewBeginTime) / 2) / 1000));
+		return (centerTime);
 	};
 
-	 var zoomLevels;
-
+	var zoomLevels;
+    var currentZoomLevel;
 
 	var tickFormat;
 
-	//function initGantt(inputConfig){
-
-	//var initGantt = function(config){
 	if (inputConfig !== "null" && inputConfig !== "undefined") {
 		eventList = inputConfig.eventSettings.eventList;
 		eventTypes = inputConfig.eventSettings.eventTypes;
@@ -57,7 +52,9 @@ d3.gantt = function(inputConfig) {
 		currentViewBeginTime = d3.time.hour.offset(minDate, -1);
 		currentViewEndTime = d3.time.hour.offset(maxDate, +1);
 
-		zoomLevels = ganttConfig.timeDomainSettings.zoomLevels;
+        currentZoomLevel = ganttConfig.timeDomainSettings.startingZoomLevel;
+
+        zoomLevels = ganttConfig.timeDomainSettings.zoomLevels;
 
 		tickFormat = inputConfig.timeDomainSettings.startingTimeFormat;
 		timeDomainString = inputConfig.startingTimeDomainString;
@@ -71,7 +68,6 @@ d3.gantt = function(inputConfig) {
 			.tickSize(8).tickPadding(8);
 
 		var yAxis = d3.svg.axis().scale(y).orient("left").tickSize(0);
-
 
 	}
 
@@ -90,7 +86,7 @@ d3.gantt = function(inputConfig) {
 		eventList.sort(function (a, b) {
 			return a.endDate - b.endDate;
 		});
-		maxDate = eventList[eventList.length - 1].endDate;       // TODO remove this area and replace with functions??????
+		maxDate = eventList[eventList.length - 1].endDate;
 		eventList.sort(function (a, b) {
 			return a.startDate - b.startDate;
 		});
@@ -100,6 +96,32 @@ d3.gantt = function(inputConfig) {
 	var tooltipdiv = d3.select("body").append("div")
 		.attr("class", "tooltip")
 		.style("opacity", 0);
+
+    var drawControls = function(){
+        d3.select('#'+ganttConfig.sizing.location).append('div')
+            .attr('id',ganttConfig.sizing.location+'-Controls')
+            .attr("style","margin-left:"+width/2+"px; width:400px;");
+        d3.select('#'+ganttConfig.sizing.location+'-Controls')
+            .append('button')
+            .attr('type',"button")
+            .attr('onclick',ganttConfig.sizing.location + ".zoomInOut('in')")
+            .html('in');
+        d3.select('#'+ganttConfig.sizing.location+'-Controls')
+            .append('button')
+            .attr('type',"button")
+            .attr('onclick',ganttConfig.sizing.location + ".zoomInOut('out')")
+            .html('out');
+        d3.select('#'+ganttConfig.sizing.location+'-Controls')
+            .append('button')
+            .attr('type',"button")
+            .attr('onclick',ganttConfig.sizing.location + ".panView('left')")
+            .html('left');
+        d3.select('#'+ganttConfig.sizing.location+'-Controls')
+            .append('button')
+            .attr('type',"button")
+            .attr('onclick',ganttConfig.sizing.location + ".panView('right')")
+            .html('right');
+    };
 
 
 //==========================================================================================================================
@@ -190,13 +212,13 @@ d3.gantt = function(inputConfig) {
 //--------------------------------------------------------------------------------------------------------------------------
 
 	function gantt(eventList) {
-
-		initZoom(eventList);
-		initAxis();
+        drawControls();
+        initAxis();
 
 		var svg = d3.select("#" + inputConfig.sizing.location)
 			.append("svg")
 			.attr("class", "chart")
+            .attr("id",inputConfig.sizing.location+"-ChartId")
 			.attr("width", width + margin.left + margin.right)
 			.attr("height", height + margin.top + margin.bottom)
 			.append("g")
@@ -229,7 +251,7 @@ d3.gantt = function(inputConfig) {
 				if (ganttConfig.eventSettings.enableToolTips && d.toolTipHTML != "") {
 					tooltipdiv.transition()
 						.duration(200)
-						.style("opacity", .9)
+						.style("opacity", .9);
 					tooltipdiv.html(d.toolTipHTML)
 						.style("left", (d3.event.pageX) + "px")
 						.style("top", (d3.event.pageY - 28) + "px");
@@ -254,8 +276,6 @@ d3.gantt = function(inputConfig) {
 
 
 	gantt.redraw = function (eventList) {
-
-		initZoom(eventList);
 		initAxis();
 
 		var svg = d3.select("svg");
@@ -303,72 +323,37 @@ d3.gantt = function(inputConfig) {
 //=================================================================================================================
 // Time Domain Code
 //------------------------------------------------------------------------------------------------------------------
-	gantt.timeDomainMode = function (value) {
-		if (!arguments.length)
-			return timeDomainMode;
-		timeDomainMode = value;
-		return gantt;
-	};
-
-	gantt.timeDomain = function (value) {
-		if (!arguments.length)
-			return [currentViewBeginTime, currentViewEndTime];
-		currentViewBeginTime = +value[0], currentViewEndTime = +value[1];
-		return gantt;
-	};
-
-	var initZoom = function (eventList) {
-		if (timeDomainMode === FIT_TIME_DOMAIN_MODE) {
-			if (eventList === undefined || eventList.length < 1) {
-				currentViewBeginTime = d3.time.day.offset(new Date(), -3);
-				currentViewEndTime = d3.time.hour.offset(new Date(), +3);
-				return;
-			}
-			eventList.sort(function (a, b) {
-				return a.endDate - b.endDate;
-			});
-			currentViewEndTime = eventList[eventList.length - 1].endDate;
-
-			eventList.sort(function (a, b) {
-				return a.startDate - b.startDate;
-			});
-			currentViewBeginTime = eventList[0].startDate;
-		}
-	};
-
-	this.currentZoomLevel = ganttConfig.timeDomainSettings.startingZoomLevel;
-
-	this.zoomInOut = function (inOrOut) {
+	gantt.zoomInOut = function (inOrOut) {
 		if (inOrOut === "in") {
-			if (this.currentZoomLevel === 0) {
+			if (currentZoomLevel === 0) {
 				alert("can't zoom in anymore")
 			} else {
-				this.currentZoomLevel--;
+				currentZoomLevel--;
 			}
 		} else if (inOrOut === "out") {
-			if (this.currentZoomLevel === (this.zoomLevels.length - 1)) {
+			if (currentZoomLevel === (zoomLevels.length - 1)) {
 				alert("Can't zoom out anymore");
 			} else {
-				this.currentZoomLevel++;
+				currentZoomLevel++;
 			}
 		} else {
 			alert("Error: Not sure if you're trying to zoom in or out. Check zoom function call");
 		}
-		this.setCustomZoom(this.currentZoomLevel);
+		this.setCustomZoom(currentZoomLevel);
 	};
 
-	this.setCustomZoom = function(zoomLevel) {
-		this.currentZoomLevel = zoomLevel;
+	gantt.setCustomZoom = function(zoomLevel) {
+		currentZoomLevel = zoomLevel;
 		var currentCenterTime = this.getCurrentViewCenterTime();
 		currentViewBeginTime = d3.time.second.offset(currentCenterTime, -this.convertZoomLevelToOffsetSeconds());
 		currentViewEndTime = d3.time.second.offset(currentCenterTime, this.convertZoomLevelToOffsetSeconds());
-		gantt.timeDomain([currentViewBeginTime, currentViewEndTime]);
-		this.tickFormat(this.determineTimeFormat(zoomLevels[this.currentZoomLevel].split(":")[1]));
+		//gantt.timeDomain([currentViewBeginTime, currentViewEndTime]);
+		this.tickFormat(this.determineTimeFormat(zoomLevels[currentZoomLevel].split(":")[1]));
 		this.redraw(eventList);
 	};
 
-	this.convertZoomLevelToOffsetSeconds = function(){
-		var zoomLevelString = ganttConfig.timeDomainSettings.zoomLevels[this.currentZoomLevel];
+	gantt.convertZoomLevelToOffsetSeconds = function(){
+		var zoomLevelString = zoomLevels[currentZoomLevel];
 		var rangeNumber = zoomLevelString.split(":")[0];
 		var rangeScale = zoomLevelString.split(":")[1];
 		var secondsResult;
@@ -392,10 +377,10 @@ d3.gantt = function(inputConfig) {
 	};
 
 
-	this.determineTimeFormat = function (scale) {
+	gantt.determineTimeFormat = function (scale) {
 		switch (scale) {
 			case "day":
-				return "%H";
+				return "%H:%M";
 				break;
 			case "hr":
 				return "%H:%M";
@@ -410,87 +395,20 @@ d3.gantt = function(inputConfig) {
 				return "%H:%M";
 		}
 	};
-
-	gantt.changeTimeDomain = function(timeDomainString) {
-		this.timeDomainString = timeDomainString;
-		switch (timeDomainString) {
-
-			case "5sec":
-				format = "%H:%M:%S";
-				gantt.timeDomain([ d3.time.second.offset(getEndDate(), -5), getEndDate() ]);
-				this.currentViewBeginTime  = d3.time.second.offset(getEndDate(), -5);
-				this.currentViewEndTime = getEndDate();
-				break;
-			case "15sec":
-				format = "%H:%M:%S";
-				gantt.timeDomain([ d3.time.second.offset(getEndDate(), -15), getEndDate() ]);
-				this.currentViewBeginTime  = d3.time.second.offset(getEndDate(), -15);
-				this.currentViewEndTime = getEndDate();
-				break;
-			case "1min":
-				format = "%H:%M:%S";
-				gantt.timeDomain([ d3.time.minute.offset(getEndDate(), -1), getEndDate() ]);
-				this.currentViewBeginTime  = d3.time.minute.offset(getEndDate(), -1);
-				this.currentViewEndTime = getEndDate();
-				break;
-			case "5min":
-				format = "%H:%M:%S";
-				gantt.timeDomain([ d3.time.minute.offset(getEndDate(), -5), getEndDate() ]);
-				this.currentViewBeginTime  = d3.time.minute.offset(getEndDate(), -5);
-				this.currentViewEndTime = getEndDate();
-				break;
-			case "15min":
-				format = "%H:%M:%S";
-				gantt.timeDomain([ d3.time.minute.offset(getEndDate(), -15), getEndDate() ]);
-				this.currentViewBeginTime  = d3.time.minute.offset(getEndDate(), -15);
-				this.currentViewEndTime = getEndDate();
-				break;
-			case "1hr":
-				format = "%H:%M:%S";
-				gantt.timeDomain([ d3.time.hour.offset(getEndDate(), -1), getEndDate() ]);
-				this.currentViewBeginTime  = d3.time.hour.offset(getEndDate(), -1);
-				this.currentViewEndTime = getEndDate();
-				break;
-			case "3hr":
-				format = "%H:%M";
-				gantt.timeDomain([ d3.time.hour.offset(getEndDate(), -3), getEndDate() ]);
-				this.currentViewBeginTime  = d3.time.hour.offset(getEndDate(), -3);
-				this.currentViewEndTime = getEndDate();
-				break;
-			case "6hr":
-				format = "%H:%M";
-				gantt.timeDomain([ d3.time.hour.offset(getEndDate(), -6), getEndDate() ]);
-				this.currentViewBeginTime  = d3.time.hour.offset(getEndDate(), -6);
-				this.currentViewEndTime = getEndDate();
-				break;
-			case "1day":
-				format = "%H:%M";
-				gantt.timeDomain([ d3.time.day.offset(getEndDate(), -1), getEndDate() ]);
-				this.currentViewBeginTime  = d3.time.day.offset(getEndDate(), -1);
-				this.currentViewEndTime = getEndDate();
-				break;
-			default:
-				format = "%H:%M"
-
-		}
-		this.tickFormat(format);
-		this.redraw(eventList);
-	};
-
 //------------------------------------------------------------------------------------------------------------------
 
 	gantt.panView = function(direction){
 		// gets the length in MS of 50% of the current view. This will be used to determine how far to pan in a single click
-		var shiftTimeLength = ((this.currentViewEndTime - this.currentViewBeginTime) / 2);
+		var shiftTimeLength = ((currentViewEndTime - currentViewBeginTime) / 2);
 		if(direction === "left"){
 			shiftTimeLength = -shiftTimeLength;
 		}
 		// convert our shift length to Sec and offset our current view start/end times. Once shifted, update the current view to these new times
-		var newStartTime =  d3.time.second.offset(this.currentViewBeginTime, (shiftTimeLength/1000));
-		var newEndTime = d3.time.second.offset(this.currentViewEndTime, (shiftTimeLength/1000));
-		this.timeDomain([ newStartTime , newEndTime ]);
-		this.currentViewBeginTime = newStartTime;
-		this.currentViewEndTime = newEndTime;
+		var newStartTime =  d3.time.second.offset(currentViewBeginTime, (shiftTimeLength/1000));
+		var newEndTime = d3.time.second.offset(currentViewEndTime, (shiftTimeLength/1000));
+		//this.timeDomain([ newStartTime , newEndTime ]);
+		currentViewBeginTime = newStartTime;
+		currentViewEndTime = newEndTime;
 		this.redraw(eventList);
 
 	}

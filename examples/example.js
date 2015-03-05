@@ -44,35 +44,9 @@ var ganttConfig = {
         timeDomainEnd: d3.time.hour.offset(new Date(),+3),
         startingTimeFormat:"%H:%M",
         startingTimeDomainString:"1day",
+        startingZoomLevel:8,
         timeDomainMode: "fixed"
     }
 };
 
-var myGantt = d3.gantt(ganttConfig)
-
-//function addTask() {
-//
-//    var lastEndDate = getEndDate();
-//    var taskStatusName = eventStyles[Math.floor(Math.random() * eventStyles.length)];
-//    var taskName = taskNames[Math.floor(Math.random() * taskNames.length)];
-//
-//    newTaskStartDate = d3.time.minute.offset(lastEndDate, Math.ceil(Math.random()));
-//    newTaskEndDate = d3.time.second.offset(newTaskStartDate, (Math.ceil(Math.random() * 1000)) + 1);
-//
-//
-//    eventList.push({
-//	"startDate" : newTaskStartDate,
-//	"endDate" : newTaskEndDate,
-//	"taskName" : taskName,
-//	"status" : taskStatusName
-//    });
-//
-//    gantt.changeTimeDomain(timeDomainString);
-//    gantt.redraw(eventList);
-//};
-//
-//function removeTask() {
-//    eventList.pop();
-//    gantt.changeTimeDomain(timeDomainString);
-//    gantt.redraw(eventList);
-//};
+var GanttChart = d3.gantt(ganttConfig);
