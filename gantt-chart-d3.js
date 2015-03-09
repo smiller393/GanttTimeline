@@ -11,9 +11,6 @@ d3.gantt = function(inputConfig) {
 	var timeDomainMode;
 	var timeDomainString;
 
-//	var FIT_TIME_DOMAIN_MODE = "fit";
-//	var FIXED_TIME_DOMAIN_MODE = "fixed";
-
 	var eventTypes;
 	var eventStyleClasses = ["event"];
 	var eventStyleCount;
@@ -28,12 +25,12 @@ d3.gantt = function(inputConfig) {
 	var currentViewBeginTime;// = d3.time.day.offset(getEndDate(), -1);
 	var currentViewEndTime;//= getEndDate();
 	gantt.getCurrentViewCenterTime = function() {
-        var centerTime = d3.time.second.offset(currentViewBeginTime,(((currentViewEndTime - currentViewBeginTime) / 2) / 1000));
+		var centerTime = d3.time.second.offset(currentViewBeginTime,(((currentViewEndTime - currentViewBeginTime) / 2) / 1000));
 		return (centerTime);
 	};
 
 	var zoomLevels;
-    var currentZoomLevel;
+	var currentZoomLevel;
 
 	var tickFormat;
 
@@ -48,13 +45,16 @@ d3.gantt = function(inputConfig) {
 		margin = inputConfig.sizing.margin;
 		height = inputConfig.sizing.height - margin.top - margin.bottom - 5;
 		width = inputConfig.sizing.width - margin.right - margin.left - 5;
+		if(inputConfig.eventSettings.eventTypes.length > 9){
+			height = inputConfig.eventSettings.eventTypes.length * 40;
+		}
 
 		currentViewBeginTime = d3.time.hour.offset(minDate, -1);
 		currentViewEndTime = d3.time.hour.offset(maxDate, +1);
 
-        currentZoomLevel = ganttConfig.timeDomainSettings.startingZoomLevel;
+		currentZoomLevel = ganttConfig.timeDomainSettings.startingZoomLevel;
 
-        zoomLevels = ganttConfig.timeDomainSettings.zoomLevels;
+		zoomLevels = ganttConfig.timeDomainSettings.zoomLevels;
 
 		tickFormat = inputConfig.timeDomainSettings.startingTimeFormat;
 		timeDomainString = inputConfig.startingTimeDomainString;
@@ -97,31 +97,32 @@ d3.gantt = function(inputConfig) {
 		.attr("class", "tooltip")
 		.style("opacity", 0);
 
-    var drawControls = function(){
-        d3.select('#'+ganttConfig.sizing.location).append('div')
-            .attr('id',ganttConfig.sizing.location+'-Controls')
-            .attr("style","margin-left:"+width/2+"px; width:400px;");
-        d3.select('#'+ganttConfig.sizing.location+'-Controls')
-            .append('button')
-            .attr('type',"button")
-            .attr('onclick',ganttConfig.sizing.location + ".zoomInOut('in')")
-            .html('in');
-        d3.select('#'+ganttConfig.sizing.location+'-Controls')
-            .append('button')
-            .attr('type',"button")
-            .attr('onclick',ganttConfig.sizing.location + ".zoomInOut('out')")
-            .html('out');
-        d3.select('#'+ganttConfig.sizing.location+'-Controls')
-            .append('button')
-            .attr('type',"button")
-            .attr('onclick',ganttConfig.sizing.location + ".panView('left')")
-            .html('left');
-        d3.select('#'+ganttConfig.sizing.location+'-Controls')
-            .append('button')
-            .attr('type',"button")
-            .attr('onclick',ganttConfig.sizing.location + ".panView('right')")
-            .html('right');
-    };
+	var drawControls = function(){
+		d3.select('#'+ganttConfig.sizing.location).append('div')
+			.attr('id',ganttConfig.sizing.location+'-Controls')
+			.attr("style","margin-left:"+width/2+"px; width:400px;");
+		d3.select('#'+ganttConfig.sizing.location+'-Controls')
+			//.append("button")
+			.append('i')
+			.attr('class','fa fa-arrow-left fa-3x nav')
+			.attr('style','margin-left:20px; border: 2px solid; border-radius: 10px; padding:3px 5px 3px 5px')
+			.attr('onclick',ganttConfig.sizing.location + ".panView('left',.30)");
+		d3.select('#'+ganttConfig.sizing.location+'-Controls')
+			.append('i')
+			.attr('class','fa fa-arrow-right fa-3x')
+			.attr('style','margin-left:20px; border: 2px solid; border-radius: 10px; padding:3px 5px 3px 5px')
+			.attr('onclick',ganttConfig.sizing.location + ".panView('right',.30)");
+		d3.select('#'+ganttConfig.sizing.location+'-Controls')
+			.append('i')
+			.attr('class','fa fa-search-plus fa-3x')
+			.attr('style','margin-left:20px; border: 2px solid; border-radius: 10px; padding:3px 5px 3px 5px')
+			.attr('onclick',ganttConfig.sizing.location + ".zoomInOut('in')");
+		d3.select('#'+ganttConfig.sizing.location+'-Controls')
+			.append('i')
+			.attr('class','fa fa-search-minus fa-3x')
+			.attr('style','margin-left:20px; border: 2px solid; border-radius: 10px; padding:3px 5px 3px 5px')
+			.attr('onclick',ganttConfig.sizing.location + ".zoomInOut('out')");
+	};
 
 
 //==========================================================================================================================
@@ -212,13 +213,13 @@ d3.gantt = function(inputConfig) {
 //--------------------------------------------------------------------------------------------------------------------------
 
 	function gantt(eventList) {
-        drawControls();
-        initAxis();
+		drawControls();
+		initAxis();
 
 		var svg = d3.select("#" + inputConfig.sizing.location)
 			.append("svg")
 			.attr("class", "chart")
-            .attr("id",inputConfig.sizing.location+"-ChartId")
+			.attr("id",inputConfig.sizing.location+"-ChartId")
 			.attr("width", width + margin.left + margin.right)
 			.attr("height", height + margin.top + margin.bottom)
 			.append("g")
@@ -261,6 +262,9 @@ d3.gantt = function(inputConfig) {
 				tooltipdiv.transition()
 					.duration(500)
 					.style("opacity", 0);
+			})
+			.on("click", function(d){
+
 			});
 
 		svg.append("g")
@@ -397,9 +401,9 @@ d3.gantt = function(inputConfig) {
 	};
 //------------------------------------------------------------------------------------------------------------------
 
-	gantt.panView = function(direction){
-		// gets the length in MS of 50% of the current view. This will be used to determine how far to pan in a single click
-		var shiftTimeLength = ((currentViewEndTime - currentViewBeginTime) / 2);
+	gantt.panView = function(direction,percentMove){
+		// gets the length in MS of X% of the current view. This will be used to determine how far to pan at a time
+		var shiftTimeLength = ((currentViewEndTime - currentViewBeginTime) * percentMove);
 		if(direction === "left"){
 			shiftTimeLength = -shiftTimeLength;
 		}
@@ -413,5 +417,5 @@ d3.gantt = function(inputConfig) {
 
 	}
 
-    return gantt(eventList);
+	return gantt(eventList);
 };
