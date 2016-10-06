@@ -36,10 +36,13 @@
 <p>Adapted from <a href="https://github.com/dk8996/Gantt-Chart">https://github.com/dk8996/Gantt-Chart</a></p>
 
 <div id="GanttChart">
-    <script type="text/javascript" src="javascripts/d3.v3.min.js"></script>
-    <script type="text/javascript" src="javascripts/gantt-chart-d3.js"></script>
-    <script type="text/javascript" src="javascripts/example.js"></script>
-    <link type="text/css" href="stylesheets/example.css" rel="stylesheet" />
+    <link type="text/css" href="css/font-awesome-4.6.3/css/font-awesome.css" rel="stylesheet" />
+    <link type="text/css" href="http://mbostock.github.io/d3/style.css" rel="stylesheet" />
+    <link type="text/css" href="examples/example.css" rel="stylesheet" />
+
+    <script type="text/javascript" src="lib/d3/d3.v3.min.js"></script>
+    <script type="text/javascript" src="gantt-chart-d3.js"></script>
+    <script type="text/javascript" src="examples/example.js"></script>
 </div>
 
 
@@ -52,69 +55,95 @@
 
 <p>Create a array of all your data.</p>
 
-<div class="highlight highlight-javascript"><pre><span class="pl-s">var</span> tasks <span class="pl-k">=</span> [
-
-{
-    <span class="pl-s1"><span class="pl-pds">"</span>startDate<span class="pl-pds">"</span></span><span class="pl-k">:</span> <span class="pl-k">new</span> <span class="pl-en">Date</span>(<span class="pl-s1"><span class="pl-pds">"</span>Sun Dec 09 01:36:45 EST 2012<span class="pl-pds">"</span></span>),
-    <span class="pl-s1"><span class="pl-pds">"</span>endDate<span class="pl-pds">"</span></span><span class="pl-k">:</span> <span class="pl-k">new</span> <span class="pl-en">Date</span>(<span class="pl-s1"><span class="pl-pds">"</span>Sun Dec 09 02:36:45 EST 2012<span class="pl-pds">"</span></span>),
-    <span class="pl-s1"><span class="pl-pds">"</span>taskName<span class="pl-pds">"</span></span><span class="pl-k">:</span> <span class="pl-s1"><span class="pl-pds">"</span>Area 1<span class="pl-pds">"</span></span>,
-    <span class="pl-s1"><span class="pl-pds">"</span>status<span class="pl-pds">"</span></span><span class="pl-k">:</span> <span class="pl-s1"><span class="pl-pds">"</span>FAILED<span class="pl-pds">"</span></span>
-},
-
-{
-    <span class="pl-s1"><span class="pl-pds">"</span>startDate<span class="pl-pds">"</span></span><span class="pl-k">:</span> <span class="pl-k">new</span> <span class="pl-en">Date</span>(<span class="pl-s1"><span class="pl-pds">"</span>Sun Dec 09 04:56:32 EST 2012<span class="pl-pds">"</span></span>),
-    <span class="pl-s1"><span class="pl-pds">"</span>endDate<span class="pl-pds">"</span></span><span class="pl-k">:</span> <span class="pl-k">new</span> <span class="pl-en">Date</span>(<span class="pl-s1"><span class="pl-pds">"</span>Sun Dec 09 06:35:47 EST 2012<span class="pl-pds">"</span></span>),
-    <span class="pl-s1"><span class="pl-pds">"</span>taskName<span class="pl-pds">"</span></span><span class="pl-k">:</span> <span class="pl-s1"><span class="pl-pds">"</span>Area 2<span class="pl-pds">"</span></span>,
-    <span class="pl-s1"><span class="pl-pds">"</span>status<span class="pl-pds">"</span></span><span class="pl-k">:</span> <span class="pl-s1"><span class="pl-pds">"</span>RUNNING<span class="pl-pds">"</span></span>
-}];
+<div class="highlight highlight-javascript"><pre>
+    var eventList = [
+        {"startDate":new Date("Sun Dec 09 01:00:00 EST 2012"),"endDate":new Date("Sun Dec 09 01:45:00 EST 2012"),"taskName":"Main Stage","status":"4","toolTipHTML":"Band 1"},
+        {"startDate":new Date("Sun Dec 09 02:00:00 EST 2012"),"endDate":new Date("Sun Dec 09 02:45:00 EST 2012"),"taskName":"Main Stage","status":"4","toolTipHTML":"Band 2"},
+        {"startDate":new Date("Sun Dec 09 03:00:00 EST 2012"),"endDate":new Date("Sun Dec 09 03:45:00 EST 2012"),"taskName":"Main Stage","status":"4","toolTipHTML":"Band 3"},
 </pre></div>
 
 <h3>
 <a id="style" class="anchor" href="#style" aria-hidden="true"><span class="octicon octicon-link"></span></a>Style</h3>
 
-<p>Create a map between task status and css class, this is optional.</p>
+<p>List out the css classes that you will be using for the event tiles</p>
+<div class="highlight highlight-javascript">
+    <pre>
+        eventStyleClassList:[
+            "blue-bar",
+            "purple-bar",
+            "red-bar",
+            "green-bar",
+            "orange-bar"
+        ]
+    </pre>
+</div>
 
-<div class="highlight highlight-javascript"><pre><span class="pl-s">var</span> taskStatus <span class="pl-k">=</span> {
-    <span class="pl-s1"><span class="pl-pds">"</span>SUCCEEDED<span class="pl-pds">"</span></span><span class="pl-k">:</span> <span class="pl-s1"><span class="pl-pds">"</span>bar<span class="pl-pds">"</span></span>,
-    <span class="pl-s1"><span class="pl-pds">"</span>FAILED<span class="pl-pds">"</span></span><span class="pl-k">:</span> <span class="pl-s1"><span class="pl-pds">"</span>bar-failed<span class="pl-pds">"</span></span>,
-    <span class="pl-s1"><span class="pl-pds">"</span>RUNNING<span class="pl-pds">"</span></span><span class="pl-k">:</span> <span class="pl-s1"><span class="pl-pds">"</span>bar-running<span class="pl-pds">"</span></span>,
-    <span class="pl-s1"><span class="pl-pds">"</span>KILLED<span class="pl-pds">"</span></span><span class="pl-k">:</span> <span class="pl-s1"><span class="pl-pds">"</span>bar-killed<span class="pl-pds">"</span></span>
-};</pre></div>
+<div class="highlight highlight-css">
+    <pre>
+        .blue-bar {
+            fill: #33b5e5;
+        }
+        .blue-bar:hover {
+            fill: #9ED2E6;
+        }
 
-<div class="highlight highlight-css"><pre>  <span class="pl-e">.bar</span> {
-      <span class="pl-mp"><span class="pl-s3">fill</span></span>: <span class="pl-c1">#33b5e5</span>;
-  }
+        .yellow-bar {
+            fill: #fffe35;
+        }
+        .yellow-bar:hover {
+            fill: #fffeb3;
+        }
 
-  <span class="pl-e">.bar-failed</span> {
-    <span class="pl-mp"><span class="pl-s3">fill</span></span>: <span class="pl-c1">#CC0000</span>;
-  }
-
-  <span class="pl-e">.bar-running</span> {
-      <span class="pl-mp"><span class="pl-s3">fill</span></span>: <span class="pl-c1">#669900</span>;
-  }
-
-  <span class="pl-e">.bar-succeeded</span> {
-    <span class="pl-mp"><span class="pl-s3">fill</span></span>: <span class="pl-c1">#33b5e5</span>;
-  }
-
-  <span class="pl-e">.bar-killed</span> {
-      <span class="pl-mp"><span class="pl-s3">fill</span></span>: <span class="pl-c1">#ffbb33</span>;
-  }</pre></div>
+    </pre>
+</div>
 
 <h3>
-<a id="task-names" class="anchor" href="#task-names" aria-hidden="true"><span class="octicon octicon-link"></span></a>Task Names</h3>
+<a id="Event-Types" class="anchor" href="#Event-Types" aria-hidden="true"><span class="octicon octicon-link"></span></a>Event Types</h3>
 
-<p>Create a array of task names, they will be display on they y-axis in the order given to the array.</p>
+<p>Create a array of event types, they will be display on they y-axis in the order given to the array.</p>
 
-<div class="highlight highlight-javascript"><pre><span class="pl-s">var</span> taskNames <span class="pl-k">=</span> [ <span class="pl-s1"><span class="pl-pds">"</span>Area 1<span class="pl-pds">"</span></span>, <span class="pl-s1"><span class="pl-pds">"</span>Area 1<span class="pl-pds">"</span></span>, <span class="pl-s1"><span class="pl-pds">"</span>Area 1<span class="pl-pds">"</span></span>, <span class="pl-s1"><span class="pl-pds">"</span>Area 1<span class="pl-pds">"</span></span>, <span class="pl-s1"><span class="pl-pds">"</span>Area 1<span class="pl-pds">"</span></span> ];</pre></div>
+<div class="highlight highlight-javascript"><pre>eventTypes:[ "Main Stage", "Left Stage", "Underground Stage" ]</pre></div>
 
 <h3>
 <a id="create-a-simple-gantt-chart" class="anchor" href="#create-a-simple-gantt-chart" aria-hidden="true"><span class="octicon octicon-link"></span></a>Create a Simple Gantt-Chart</h3>
 
 <p>Create a simple Gantt-Chart</p>
 
-<div class="highlight highlight-javascript"><pre><span class="pl-s">var</span> gantt <span class="pl-k">=</span> d3.gantt().taskTypes(taskNames).taskStatus(taskStatus);
-gantt(tasks);</pre></div>
+<div class="highlight highlight-javascript"><pre><span class="pl-s">var</span> gantt <span class="pl-k">=</span>
+    var ganttConfig = {
+    eventSettings: {
+        eventList: eventList,
+        eventTypes:[ "Main Stage", "Left Stage", "Underground Stage" ],
+        eventStyleClassList:[
+        "blue-bar",
+        "purple-bar",
+        "red-bar",
+        "green-bar",
+        "orange-bar"],
+        enableToolTips: true
+    },
+    sizing: {
+        location:'GanttChart',
+        margin:{
+            top : 60,
+            right : 40,
+            bottom : 20,
+            left : 120
+        },
+        height:"400",
+        width:"700"
+    },
+    timeDomainSettings: {
+        zoomLevels:["5:sec","15:sec","1:min","5:min","15:min","1:hr","3:hr","6:hr","1:day"],
+        timeDomainStart:d3.time.day.offset(new Date(),-3),
+        timeDomainEnd: d3.time.hour.offset(new Date(),+3),
+        startingTimeFormat:"%H:%M",
+        startingTimeDomainString:"1day",
+        startingZoomLevel:8,
+        timeDomainMode: "fixed"
+    }
+};
+ var GanttChart = d3.gantt(ganttConfig); </pre></div>
 
 <h2>
 <a id="dependencies--building" class="anchor" href="#dependencies--building" aria-hidden="true"><span class="octicon octicon-link"></span></a>Dependencies &amp; Building</h2>
